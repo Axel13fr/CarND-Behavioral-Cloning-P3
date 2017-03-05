@@ -22,27 +22,14 @@ class LossHistory(Callback):
 
 # Main:
 provider = DataProvider()
-#loader.load_training('./data/First_backward/')
-#loader.load_training('./data/First_forward/')
-#loader.load_training('./data/Center_Forward/')
-#[X_train,y_train] = loader.load_training('./data/Center_Backward/')
-#print(X_train.shape)
-#[X_train,y_train] = load_training('./data/First_backward/')
-#[X_train2,y_train2] = load_training('./data/First_forward/')
-#X_train = np.concatenate([X_train,X_train2])
-#print(X_train.shape)
-#y_train = np.concatenate([y_train,y_train2])
 
 provider.load_file('./data/Center_Forward/')
 provider.load_file('./data/Center_Backward/')
 #provider.load_file('./data/First_backward/')
 #provider.load_file('./data/First_forward/')
 [train_samples,validation_samples] = provider.split_samples()
-print(len(train_samples))
-print(len(validation_samples))
-
-train_generator = DataProvider.generator(train_samples, batch_size=256)
-validation_generator = DataProvider.generator(validation_samples, batch_size=256)
+train_generator = DataProvider.generator(train_samples, batch_size=128)
+validation_generator = DataProvider.generator(validation_samples, batch_size=128)
 
 # Build
 model = models.build_Nvidia()
@@ -52,7 +39,7 @@ history = LossHistory()
 model.compile(loss='mse',optimizer='adam')
 model.fit_generator(train_generator, samples_per_epoch= 4*len(train_samples),
                     validation_data=validation_generator,
-                    nb_val_samples=4*len(validation_samples), nb_epoch=3,callbacks=[history])
+                    nb_val_samples=4*len(validation_samples), nb_epoch=10,callbacks=[history])
 
 model.save('model.h5')
 

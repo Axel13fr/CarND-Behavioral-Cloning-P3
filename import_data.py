@@ -60,7 +60,7 @@ class DataProvider():
             measurement = float(line[3])
             measurements.append(measurement)
             # create adjusted steering measurements for the side camera images
-            correction = 0.2 # this is a parameter to tune
+            correction = 0.5 # this is a parameter to tune
             steering_left = measurement + correction
             steering_right = measurement - correction
 
@@ -99,7 +99,7 @@ class DataProvider():
 
                     angles.append(center_angle)
                     # create adjusted steering measurements for the side camera images
-                    correction = 0.2  # this is a parameter to tune
+                    correction = 0.4  # this is a parameter to tune
                     steering_left = center_angle + correction
                     steering_right = center_angle - correction
                     angles.append(steering_left)
