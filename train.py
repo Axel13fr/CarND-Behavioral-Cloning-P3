@@ -2,6 +2,7 @@ from import_data import DataProvider
 import models
 
 from keras.callbacks import Callback
+from keras.models import load_model
 import matplotlib.pyplot as plt
 
 class LossHistory(Callback):
@@ -25,21 +26,30 @@ provider = DataProvider()
 
 provider.load_file('./data/Center_Forward/')
 provider.load_file('./data/Center_Backward/')
-#provider.load_file('./data/First_backward/')
-#provider.load_file('./data/First_forward/')
+
+# Project data has a relative path:
+ref_data_folder = './data/RefData/'
+#provider.load_file(ref_data_folder)
+
+# Data augmentation: flip version of each of the 3 camera frames !
+FRAMES_PER_SAMPLE = 6
 [train_samples,validation_samples] = provider.split_samples()
-train_generator = DataProvider.generator(train_samples, batch_size=128)
-validation_generator = DataProvider.generator(validation_samples, batch_size=128)
+train_generator = DataProvider.generator(ref_data_folder,train_samples, batch_size=128)
+validation_generator = DataProvider.generator(ref_data_folder,validation_samples, batch_size=128)
+print('Training samples: ' + str(FRAMES_PER_SAMPLE*len(train_samples)))
 
 # Build
-model = models.build_Nvidia()
+model = None
+#model = load_model('model.h5')
+if not model:
+    model = models.build_Nvidia()
+    model.compile(loss='mse',optimizer='adam')
 
 # Train
 history = LossHistory()
-model.compile(loss='mse',optimizer='adam')
-model.fit_generator(train_generator, samples_per_epoch= 4*len(train_samples),
+model.fit_generator(train_generator, samples_per_epoch= FRAMES_PER_SAMPLE*len(train_samples),
                     validation_data=validation_generator,
-                    nb_val_samples=4*len(validation_samples), nb_epoch=10,callbacks=[history])
+                    nb_val_samples=FRAMES_PER_SAMPLE*len(validation_samples), nb_epoch=10,callbacks=[history])
 
 model.save('model.h5')
 
