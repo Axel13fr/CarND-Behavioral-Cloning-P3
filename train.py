@@ -1,4 +1,5 @@
 from import_data import DataProvider
+import numpy as np
 import models
 
 from keras.callbacks import Callback
@@ -21,11 +22,21 @@ class LossHistory(Callback):
         ax.legend()
         plt.show()
 
-# Main:
+# Load Data:
 provider = DataProvider()
-
 provider.load_file('./data/Center_Forward/')
 provider.load_file('./data/Center_Backward/')
+
+# Plot Angle Distribution
+plt.hist(provider.get_angles(), bins='fd')  # plt.hist passes it's arguments to np.histogram
+plt.title("Angles Histogram ")
+plt.show()
+
+# Exclude over represented data
+bin_edges = provider.redistribute()
+adjusted_angles = provider.get_angles()
+plt.hist(adjusted_angles, bins=bin_edges)
+plt.show()
 
 # Project data has a relative path:
 ref_data_folder = './data/RefData/'

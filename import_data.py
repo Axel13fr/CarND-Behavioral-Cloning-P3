@@ -6,8 +6,6 @@ import sklearn
 class DataProvider():
 
     def __init__(self):
-        self._images = None
-        self._measurements = None
         self._samples = []
 
     @staticmethod
@@ -59,6 +57,48 @@ class DataProvider():
         train_samples, validation_samples = train_test_split(self._samples, test_size=0.2)
         return train_samples, validation_samples
 
+    def redistribute(self,cap_threshold=200):
+        capped_ranges, bin_edges = self.get_angle_ranges_to_cap(cap_threshold)
+        adjusted_samples = []
+        for sample in self._samples:
+            if not self.is_angle_excluded(float(sample[3]),capped_ranges):
+                adjusted_samples.append(sample)
+        self._samples = adjusted_samples
+        return bin_edges
+
+    @staticmethod
+    def is_angle_excluded(angle,capped_ranges):
+        # Search if angle shall be filtered out
+        excluded = False
+        for range in capped_ranges:
+            if angle >= range[0] and angle <= range[1]:
+                # random selection based on ratio
+                ratio = range[2]
+                if ratio > np.random.uniform(size=1):
+                    excluded = True
+        return excluded
+
+    def get_angle_ranges_to_cap(self,cap_threshold):
+        MAX_SAMPLES = cap_threshold
+        hist, bin_edges = np.histogram(self.get_angles(), bins='fd')
+        overpop_bin_indices = np.greater(hist, MAX_SAMPLES).nonzero()
+        overpopulated_bin_starts = bin_edges[overpop_bin_indices]
+        bin_count = hist[overpop_bin_indices]
+        print(sum(bin_count))
+        bin_width = bin_edges[1] - bin_edges[0]
+        capped_ranges = []
+        for i, start in enumerate(overpopulated_bin_starts):
+            select_ratio = MAX_SAMPLES / bin_count[i]
+            capped_ranges.append([start, start + bin_width, select_ratio])
+
+        return capped_ranges, bin_edges
+
+    def get_angles(self):
+        angles = []
+        for sample in self._samples:
+            angles.append(float(sample[3]))
+        return angles
+
     @staticmethod
     def generator(folder,samples,batch_size=32):
 
@@ -81,7 +121,7 @@ class DataProvider():
 
                     angles.append(center_angle)
                     # create adjusted steering measurements for the side camera images
-                    correction = 0.25  # this is a parameter to tune
+                    correction = 0.2  # this is a parameter to tune
                     steering_left = center_angle + correction
                     steering_right = center_angle - correction
                     angles.append(steering_left)
