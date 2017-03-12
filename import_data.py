@@ -3,6 +3,13 @@ import cv2
 import numpy as np
 import sklearn
 
+# A Sample
+class Sample():
+    def __init__(self,angle,img_path):
+        self._angle = angle
+        self._img_path = img_path
+
+# Sample Container, File parser, Data generator
 class DataProvider():
 
     def __init__(self):
@@ -14,27 +21,16 @@ class DataProvider():
         if src_path.startswith('IMG') or src_path.startswith(' IMG'):
             file_name = src_path.split('/')[-1]
             path = folder + 'IMG/' +  file_name
-            img = cv2.imread(path)
+            img =  cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGB)
         # absolute path case
         else:
             path = src_path
-            img = cv2.imread(path)
-
-        #if img is None:
-        #    print('Error opening file:' + path)
-        #    raise TypeError
+            img = cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGB)
 
         return img
 
     @staticmethod
-    def open_images(folder,csv_line):
-        im_center = DataProvider.open_image(folder,csv_line[0],)
-        im_left = DataProvider.open_image(folder,csv_line[1])
-        im_right = DataProvider.open_image(folder,csv_line[2])
-        return im_center,im_left,im_right
-
-    @staticmethod
-    def augment_sample(img,mes):
+    def flip_sample(img,mes):
         image_flipped = np.fliplr(img)
         measurement_flipped = -mes
         return image_flipped,measurement_flipped
@@ -43,12 +39,17 @@ class DataProvider():
         with open(folder + "driving_log.csv") as csvfile:
             reader = csv.reader(csvfile)
             for line in reader:
-                self._samples.append(line)
                 try:
                     float(line[3])
                 except ValueError:
                     print("Could not convert data to a float:" + str(line))
                     raise
+
+                # create adjusted steering measurements for the side camera images
+                correction = 0.25  # this is a parameter to tune
+                self._samples.append(Sample(float(line[3]),line[0]))
+                self._samples.append(Sample(float(line[3])+ correction,line[1])) # left
+                self._samples.append(Sample(float(line[3]) - correction, line[2]))  # right
 
         return self._samples
 
@@ -57,13 +58,40 @@ class DataProvider():
         train_samples, validation_samples = train_test_split(self._samples, test_size=0.2)
         return train_samples, validation_samples
 
-    def redistribute(self,cap_threshold=200):
-        capped_ranges, bin_edges = self.get_angle_ranges_to_cap(cap_threshold)
+    ''' Returns bin ranges which shall be filtered out because their bin count is over cap_threshold
+        @return a list containing [bin_Start,bin_End, selection_ratio]
+        @return bin_edges for later histogram reuse
+    '''
+    def get_angle_ranges_to_cap(self,cap_threshold,bins):
+        MAX_SAMPLES = cap_threshold
+        hist, bin_edges = np.histogram(self.get_angles(),bins)
+        overpop_bin_indices = np.greater(hist, MAX_SAMPLES).nonzero()
+        overpopulated_bin_starts = bin_edges[overpop_bin_indices]
+        # Number of samples per bin
+        bin_counts = hist[overpop_bin_indices]
+        print("Total Bin Counts : " + str(sum(bin_counts)))
+
+        bin_width = bin_edges[1] - bin_edges[0]
+
+        capped_ranges = []
+        for i, start in enumerate(overpopulated_bin_starts):
+            # select ratio will be used to randomly excluse some samples
+            select_ratio = MAX_SAMPLES / bin_counts[i]
+            capped_ranges.append([start, start + bin_width, select_ratio])
+
+        return capped_ranges, bin_edges
+
+
+    def redistribute(self,cap_threshold=200,bins=100):
+        capped_ranges, bin_edges = self.get_angle_ranges_to_cap(cap_threshold,bins)
+        print("Samples before redistribution: " + str(len(self._samples)))
         adjusted_samples = []
         for sample in self._samples:
-            if not self.is_angle_excluded(float(sample[3]),capped_ranges):
+            if not self.is_angle_excluded(sample._angle,capped_ranges):
                 adjusted_samples.append(sample)
         self._samples = adjusted_samples
+        print("Samples after redistribution: " + str(len(adjusted_samples)))
+
         return bin_edges
 
     @staticmethod
@@ -74,30 +102,20 @@ class DataProvider():
             if angle >= range[0] and angle <= range[1]:
                 # random selection based on ratio
                 ratio = range[2]
-                if ratio > np.random.uniform(size=1):
+                if ratio < np.random.uniform(size=1):
                     excluded = True
         return excluded
-
-    def get_angle_ranges_to_cap(self,cap_threshold):
-        MAX_SAMPLES = cap_threshold
-        hist, bin_edges = np.histogram(self.get_angles(), bins='fd')
-        overpop_bin_indices = np.greater(hist, MAX_SAMPLES).nonzero()
-        overpopulated_bin_starts = bin_edges[overpop_bin_indices]
-        bin_count = hist[overpop_bin_indices]
-        print(sum(bin_count))
-        bin_width = bin_edges[1] - bin_edges[0]
-        capped_ranges = []
-        for i, start in enumerate(overpopulated_bin_starts):
-            select_ratio = MAX_SAMPLES / bin_count[i]
-            capped_ranges.append([start, start + bin_width, select_ratio])
-
-        return capped_ranges, bin_edges
 
     def get_angles(self):
         angles = []
         for sample in self._samples:
-            angles.append(float(sample[3]))
+            angles.append(sample._angle)
         return angles
+
+    @staticmethod
+    def preprocessing(img):
+        # RGB TO HSV then to only H
+        return cv2.cvtColor(img, cv2.COLOR_BGR2HSV)[:,:,0].reshape(160,320,1)
 
     @staticmethod
     def generator(folder,samples,batch_size=32):
@@ -110,36 +128,22 @@ class DataProvider():
 
                 images = []
                 angles = []
-                for batch_sample in batch_samples:
+                for sample in batch_samples:
+                    img = DataProvider.open_image(folder,sample._img_path)
+                    # Apply preprocessing for training too !
+                    img = DataProvider.preprocessing(img)
+                    #print(img.shape)
+                    angle = sample._angle
 
-                    center_angle = float(batch_sample[3])
+                    # Read image, associate angle
+                    angles.append(angle)
+                    images.append(img)
 
-                    [im_center, im_left, im_right] = DataProvider.open_images(folder,batch_sample)
-                    images.append(im_center)
-                    images.append(im_left)
-                    images.append(im_right)
+                    # Data Augmentation: flip image
+                    flipped_img, flipped_angle  = DataProvider.flip_sample(img, angle)
+                    images.append(flipped_img)
+                    angles.append(flipped_angle)
 
-                    angles.append(center_angle)
-                    # create adjusted steering measurements for the side camera images
-                    correction = 0.2  # this is a parameter to tune
-                    steering_left = center_angle + correction
-                    steering_right = center_angle - correction
-                    angles.append(steering_left)
-                    angles.append(steering_right)
-
-                    # Data Augmentation
-                    im, mes = DataProvider.augment_sample(im_center, center_angle)
-                    images.append(im)
-                    angles.append(mes)
-                    im, mes = DataProvider.augment_sample(im_left, center_angle)
-                    images.append(im)
-                    angles.append(mes)
-                    im, mes = DataProvider.augment_sample(im_right, center_angle)
-                    images.append(im)
-                    angles.append(mes)
-
-                # trim image to only see section with road
                 X_train = np.array(images)
                 y_train = np.array(angles)
                 yield sklearn.utils.shuffle(X_train, y_train)
-

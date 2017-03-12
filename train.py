@@ -27,23 +27,27 @@ provider = DataProvider()
 provider.load_file('./data/Center_Forward/')
 provider.load_file('./data/Center_Backward/')
 
+# Project data has a relative path for images
+ref_data_folder = './data/RefData/'
+provider.load_file(ref_data_folder)
+
 # Plot Angle Distribution
-plt.hist(provider.get_angles(), bins='fd')  # plt.hist passes it's arguments to np.histogram
+plt.hist(provider.get_angles(), bins=100)  # plt.hist passes it's arguments to np.histogram
 plt.title("Angles Histogram ")
-plt.show()
+#plt.show()
+plt.draw()
+plt.pause(0.05)
 
 # Exclude over represented data
-bin_edges = provider.redistribute()
+bin_edges = provider.redistribute(cap_threshold=500)
 adjusted_angles = provider.get_angles()
 plt.hist(adjusted_angles, bins=bin_edges)
-plt.show()
+plt.draw()
+plt.pause(0.05)
 
-# Project data has a relative path:
-ref_data_folder = './data/RefData/'
-#provider.load_file(ref_data_folder)
 
-# Data augmentation: flip version of each of the 3 camera frames !
-FRAMES_PER_SAMPLE = 6
+# Data augmentation during generator: flip version of each frames
+FRAMES_PER_SAMPLE = 2
 [train_samples,validation_samples] = provider.split_samples()
 train_generator = DataProvider.generator(ref_data_folder,train_samples, batch_size=128)
 validation_generator = DataProvider.generator(ref_data_folder,validation_samples, batch_size=128)
@@ -51,7 +55,7 @@ print('Training samples: ' + str(FRAMES_PER_SAMPLE*len(train_samples)))
 
 # Build
 model = None
-#model = load_model('model.h5')
+model = load_model('model.h5')
 if not model:
     model = models.build_Nvidia()
     model.compile(loss='mse',optimizer='adam')
@@ -60,7 +64,7 @@ if not model:
 history = LossHistory()
 model.fit_generator(train_generator, samples_per_epoch= FRAMES_PER_SAMPLE*len(train_samples),
                     validation_data=validation_generator,
-                    nb_val_samples=FRAMES_PER_SAMPLE*len(validation_samples), nb_epoch=10,callbacks=[history])
+                    nb_val_samples=FRAMES_PER_SAMPLE*len(validation_samples), nb_epoch=5,callbacks=[history])
 
 model.save('model.h5')
 
