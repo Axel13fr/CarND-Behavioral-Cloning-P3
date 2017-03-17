@@ -6,6 +6,8 @@ from keras.callbacks import Callback
 from keras.models import load_model
 import matplotlib.pyplot as plt
 
+''' Stores losses via Keras callbacks and provide plot functions
+'''
 class LossHistory(Callback):
     def on_train_begin(self, logs={}):
         self.losses = []
@@ -21,6 +23,10 @@ class LossHistory(Callback):
         ax.set_title('Loss curves')
         ax.legend()
         plt.show()
+
+
+###########################################################################################
+############## TRAINING ###############
 
 # Load Data:
 provider = DataProvider()

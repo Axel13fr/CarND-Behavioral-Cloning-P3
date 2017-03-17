@@ -81,7 +81,9 @@ class DataProvider():
 
         return capped_ranges, bin_edges
 
-
+    ''' Cuts off overrepresented angle samples randomly within each bin having a count above the cap_threshold parameter
+        @return: bin edges used to calculate the histogram to cut off 
+    '''
     def redistribute(self,cap_threshold=200,bins=100):
         capped_ranges, bin_edges = self.get_angle_ranges_to_cap(cap_threshold,bins)
         print("Samples before redistribution: " + str(len(self._samples)))
@@ -94,6 +96,9 @@ class DataProvider():
 
         return bin_edges
 
+    ''' Checks if an angle is within a range which should be capped and randomly decides based on a the select ratio
+        if it should be excluded or not
+    '''
     @staticmethod
     def is_angle_excluded(angle,capped_ranges):
         # Search if angle shall be filtered out
