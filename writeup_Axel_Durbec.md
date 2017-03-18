@@ -63,14 +63,17 @@ My model consists of a convolution neural network based on the nvidia architectu
 The model includes RELU layers to introduce nonlinearity, and the data is normalized in the model using a Keras lambda layer (code line 12). The input data is cropped to include only the part of the image which contains relevant information to decide which direction to steer to.
 
 Cropped image
+
 ![Cropped sample image][step1]
 
 I included as well a preprocessing step which is not directly done in the model itself but in data reading as I couldn't implement it yet in Keras or Tensorflow: converting the image from RGB to HSV and then keeping only the Hue channel. The idea is the following: the Hue channel contains the chroma, better seperated from the lumina information, which should make this colorspace more robust to lighting variations contrary to RGB. The Hue channel shall contain enough information to drive while reducing the amount of inputs so that the DNN can focus on stricly vital information to decide (less noise).
 
 HSV image
+
 ![HSV sample image][step2]
 
 Hue channel only
+
 ![Hue channel only][step3]
 
 #### 2. Attempts to reduce overfitting in the model
