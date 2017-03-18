@@ -21,7 +21,10 @@ The goals / steps of this project are the following:
 [image5]: ./examples/placeholder_small.png "Recovery Image"
 [image6]: ./examples/placeholder_small.png "Normal Image"
 [image7]: ./examples/placeholder_small.png "Flipped Image"
-[histo]: ./report/histo.png "Redistrubtion of the training set"
+[histo]: ./images/histo.png "Redistrubtion of the training set"
+[step1]: ./images/step1.png "Step1"
+[step2]: ./images/step2.png "Step2"
+[step3]: ./images/step3.png "Step3"
 
 ## Rubric Points
 ### Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
@@ -57,8 +60,15 @@ After first trying out the LeNet model, I had underfit problems leading to poor 
 
 My model consists of a convolution neural network based on the nvidia architecture (models.py lines 53-70). 
 
-The model includes RELU layers to introduce nonlinearity, and the data is normalized in the model using a Keras lambda layer (code line 12). The input data is cropped to include only the part of the image which contains relevant information to decide which direction to steer to. 
+The model includes RELU layers to introduce nonlinearity, and the data is normalized in the model using a Keras lambda layer (code line 12). The input data is cropped to include only the part of the image which contains relevant information to decide which direction to steer to.
+
+![Cropped sample image][step1]
+
 I included as well a preprocessing step which is not directly done in the model itself but in data reading as I couldn't implement it yet in Keras or Tensorflow: converting the image from RGB to HSV and then keeping only the Hue channel. The idea is the following: the Hue channel contains the chroma, better seperated from the lumina information, which should make this colorspace more robust to lighting variations contrary to RGB. The Hue channel shall contain enough information to drive while reducing the amount of inputs so that the DNN can focus on stricly vital information to decide (less noise).
+
+![HSV sample image][step2]
+
+![Hue channel only][step3]
 
 #### 2. Attempts to reduce overfitting in the model
 
@@ -67,7 +77,7 @@ The model contains dropout layers in order to reduce overfitting (model.py lines
 The import_data.py file contains an important "redistribute" function which looks over the histogram of all angles used for training and excluses randomly samples from each bin which has a count over a certain cap threshold parameter.
 This produces a flatter distribution of the training samples so that the model is trained more equally on all cases.
 
-![Sample Redistribution] [histo]
+![Sample Redistribution][histo]
 
 The model was trained and validated on different data sets to ensure that the model was not overfitting (train.py line 33-37). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
