@@ -79,9 +79,8 @@ The model contains dropout layers in order to reduce overfitting (model.py lines
 
 The import_data.py file contains an important "redistribute" function which looks over the histogram of all angles used for training and excluses randomly samples from each bin which has a count over a certain cap threshold parameter.
 This produces a flatter distribution of the training samples so that the model is trained more equally on all cases.
-<p align="center">
+
 ![Sample Redistribution][histo]
-</p>
 The model was trained and validated on different data sets to ensure that the model was not overfitting (train.py line 33-37). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
 #### 3. Model parameter tuning
