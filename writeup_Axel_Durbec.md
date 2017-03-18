@@ -1,9 +1,5 @@
 #**Behavioral Cloning** 
 
-##Writeup Template
-
-###You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
 ---
 
 **Behavioral Cloning Project**
@@ -28,12 +24,12 @@ The goals / steps of this project are the following:
 [histo]: ./report/histo.png "Redistrubtion of the training set"
 
 ## Rubric Points
-###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
+### Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
 
 ---
-###Files Submitted & Code Quality
+### Files Submitted & Code Quality
 
-####1. Submission includes all required files and can be used to run the simulator in autonomous mode
+#### 1. Submission includes all required files and can be used to run the simulator in autonomous mode
 
 My project includes the following files:
 * models.py containing the script to create the model
@@ -43,19 +39,19 @@ My project includes the following files:
 * model.h5 containing a trained convolution neural network 
 * writeup_report.md or writeup_report.pdf summarizing the results
 
-####2. Submission includes functional code
+#### 2. Submission includes functional code
 Using the Udacity provided simulator and my drive.py file, the car can be driven autonomously around the track by executing 
 ```sh
 python drive.py model.h5
 ```
 
-####3. Submission code is usable and readable
+#### 3. Submission code is usable and readable
 
 The train.py & models.py file contains the code for training and saving the convolution neural network. The file shows the pipeline I used for training and validating the model, and it contains comments to explain how the code works.
 
-###Model Architecture and Training Strategy
+### Model Architecture and Training Strategy
 
-####1. An appropriate model architecture has been employed
+#### 1. An appropriate model architecture has been employed
 
 After first trying out the LeNet model, I had underfit problems leading to poor performance on the track. That was back when I didn't have all the preprocessing steps detailed later, which means that this model might work as well now that I have proper data conditionning and it has the advantage of being lighter that the Nvidia one so this is something to try again when thinking about realtime applications.
 
@@ -64,7 +60,7 @@ My model consists of a convolution neural network based on the nvidia architectu
 The model includes RELU layers to introduce nonlinearity, and the data is normalized in the model using a Keras lambda layer (code line 12). The input data is cropped to include only the part of the image which contains relevant information to decide which direction to steer to. 
 I included as well a preprocessing step which is not directly done in the model itself but in data reading as I couldn't implement it yet in Keras or Tensorflow: converting the image from RGB to HSV and then keeping only the Hue channel. The idea is the following: the Hue channel contains the chroma, better seperated from the lumina information, which should make this colorspace more robust to lighting variations contrary to RGB. The Hue channel shall contain enough information to drive while reducing the amount of inputs so that the DNN can focus on stricly vital information to decide (less noise).
 
-####2. Attempts to reduce overfitting in the model
+#### 2. Attempts to reduce overfitting in the model
 
 The model contains dropout layers in order to reduce overfitting (model.py lines 21). 
 
@@ -75,19 +71,19 @@ This produces a flatter distribution of the training samples so that the model i
 
 The model was trained and validated on different data sets to ensure that the model was not overfitting (train.py line 33-37). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
-####3. Model parameter tuning
+#### 3. Model parameter tuning
 
 The model used an adam optimizer, so the learning rate was not tuned manually (model.py line 25).
 
-####4. Appropriate training data
+#### 4. Appropriate training data
 
 Training data was chosen to keep the vehicle driving on the road. I focused exclusively on driving at the center of the road and compensated using the side cameras and applying a correction offset. I used the provided data set along with 2 other recordings per track: one forward and one backward to provide enough data to train my model.
 
 For details about how I created the training data, see the next section. 
 
-###Model Architecture and Training Strategy
+### Model Architecture and Training Strategy
 
-####1. Solution Design Approach
+#### 1. Solution Design Approach
 
 The overall strategy for deriving a model architecture was to gradually complexify the model to make sure it could overfit the data. I used a CNN base as this architecture demonstrated good performance on previous image classification tasks in the convolutionnal layer and the Fully connected layers shall be enough to use high level features such as road delimiters to steer the car properly.
 
@@ -103,7 +99,7 @@ I simply used early termination of the training (only 5epochs) to prevent overfi
 
 At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road on track1. It can even drive correcly at high speeds than 9, for example 20 will do but it will start looking like a drunk driver. 15 was still producing smooth results.
 
-####2. Final Model Architecture
+#### 2. Final Model Architecture
 
 The final model architecture (model.py lines 18-24) consisted directly of the Nvidia model. The major difficulty in this project to me was to correctly choose and preprocess the data rather than choosing the correct network architecture as a MSE with a low distance between training set and test set didn't mean the car would drive ok on both tracks.
 
@@ -111,7 +107,7 @@ Here is a visualization of the architecture (note: visualizing the architecture 
 
 ![alt text][image1]
 
-####3. Creation of the Training Set & Training Process
+#### 3. Creation of the Training Set & Training Process
 
 See Appropriate training data section for the kind of data I recorded to train my model on both tracks.
 
