@@ -84,6 +84,7 @@ The import_data.py file contains an important "redistribute" function which look
 This produces a flatter distribution of the training samples so that the model is trained more equally on all cases.
 
 ![Sample Redistribution][histo]
+
 The model was trained and validated on different data sets to ensure that the model was not overfitting (train.py line 33-37). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
 #### 3. Model parameter tuning
