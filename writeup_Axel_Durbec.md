@@ -68,7 +68,7 @@ I included as well a preprocessing step which is not directly done in the model 
 
 #### 2. Attempts to reduce overfitting in the model
 
-The model contains dropout layers in order to reduce overfitting (model.py lines 21). 
+The model contains dropout layers in order to reduce overfitting. It has as well less Conv. layers to reduce complexity.
 
 The import_data.py file contains an important "redistribute" function which looks over the histogram of all angles used for training and excluses randomly samples from each bin which has a count over a certain cap threshold parameter.
 This produces a flatter distribution of the training samples so that the model is trained more equally on all cases.
@@ -84,6 +84,7 @@ The model used an adam optimizer, so the learning rate was not tuned manually (m
 #### 4. Appropriate training data
 
 Training data was chosen to keep the vehicle driving on the road. I focused exclusively on driving at the center of the road and compensated using the side cameras and applying a correction offset. I used the provided data set along with 2 other recordings per track: one forward and one backward to provide enough data to train my model.
+As for track 2, I had one lap forward and one lap backward as well as another set of data which captures sharp turns towards the end of the track to give the model a pinch more of high steering wheel values.
 
 For details about how I created the training data, see the next section. 
 
@@ -124,3 +125,9 @@ After the collection process, I had 68595 number of data points. As explained ab
 
 I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 10 as evidenced by the loss plot below: the simplified along with dropout needed more epochs to converge to some good performances. I used an adam optimizer so that manually training the learning rate wasn't necessary.
 
+#### 4. List of things to do with more time
+- Reduce the model size and complexity: less parameters might be needed to tackle both these tracks even though I used fantastic details mode in the simulator to add up more realism
+- Reduce the image size: a lower resolution could be enough
+- Use only H and S channels as they have more relevant information than V or RGB
+- Record data to keep vehicle on the right side of the road intead of driving in the middle on track 2 
+- I could spend hours more on this problem and try my model on GTA V but my wife is already pissed so I shall stop here....
