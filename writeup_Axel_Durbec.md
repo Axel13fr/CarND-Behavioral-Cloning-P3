@@ -19,6 +19,7 @@ The goals / steps of this project are the following:
 [H_chan]: ./images/H_chan.png "H"
 [S_chan]: ./images/S_chan.png "S"
 [V_chan]: ./images/V_chan.png "V"
+[loss]: ./images/loss_curve.png "loss"
 
 ## Rubric Points
 ### Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
@@ -107,8 +108,9 @@ The real work came from track2: my vehicle would drive off the road at sharp tur
 
 After that, I was able to drive properly on both tracks only adding sharp turns recording to have more samples of high steering angles.
 
-#### 2. Final Model Architecture
+![Loss curves][loss]
 
+#### 2. Final Model Architecture
 
 The final model architecture (model.py lines 73-93) consisted of a simplfied version of the Nvidia model as stated above. The major difficulty in this project to me was to correctly choose and preprocess the data and have a model simple enough to avoid having hours of data recording as an MSE with a low distance between training set and test set didn't mean the car would drive ok on both tracks.
 
@@ -124,6 +126,8 @@ The side camera images were used and flipped as well.
 After the collection process, I had 68595 number of data points. As explained above, this data set was adjusted to be better distributed by looking at the overpopulated bins of a histogram done over the whole data set. After redistrubtion, that gave me 44412 and after a split of 20% for validation and augmentation I ended up with a final number of 71058 samples.
 
 I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 10 as evidenced by the loss plot below: the simplified along with dropout needed more epochs to converge to some good performances. I used an adam optimizer so that manually training the learning rate wasn't necessary.
+
+
 
 #### 4. List of things to do with more time
 - Reduce the model size and complexity: less parameters might be needed to tackle both these tracks even though I used fantastic details mode in the simulator to add up more realism
