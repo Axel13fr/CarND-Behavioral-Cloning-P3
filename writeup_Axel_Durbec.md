@@ -127,8 +127,6 @@ I used this training data for training the model. The validation set helped dete
 
 ![Loss curves][loss]
 
-One can see that after a couple of epochs, the model is still able to overfit the data which is a sign that it could still be simplified and perform equally good provided enough epochs or less dropout.
-
 #### 4. List of things to do with more time
 - Reduce the model size and complexity: less parameters might be needed to tackle both these tracks even though I used fantastic details mode in the simulator to add up more realism
 - Reduce the image size: a lower resolution could be enough
