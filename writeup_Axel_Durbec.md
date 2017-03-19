@@ -22,9 +22,11 @@ The goals / steps of this project are the following:
 [image6]: ./examples/placeholder_small.png "Normal Image"
 [image7]: ./examples/placeholder_small.png "Flipped Image"
 [histo]: ./images/histo.png "Redistrubtion of the training set"
-[step1]: ./images/step1.png "Step1"
-[step2]: ./images/step2.png "Step2"
-[step3]: ./images/step3.png "Step3"
+[original]: ./images/original.png "Step1"
+[cropped]: ./images/cropped.png "Step2"
+[H_chan]: ./images/H_chan.png "H"
+[S_chan]: ./images/S_chan.png "S"
+[V_chan]: ./images/V_chan.png "V"
 
 ## Rubric Points
 ### Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
@@ -58,23 +60,19 @@ The train.py & models.py file contains the code for training and saving the conv
 
 After first trying out the LeNet model, I had underfit problems leading to poor performance on the track. That was back when I didn't have all the preprocessing steps detailed later, which means that this model might work as well now that I have proper data conditionning and it has the advantage of being lighter that the Nvidia one so this is something to try again when thinking about realtime applications.
 
-My model consists of a convolution neural network based on the nvidia architecture (models.py lines 53-70). 
+My model consists of a convolution neural network based on the nvidia architecture (models.py lines 53-70) but slightly simplified: I removed the 2 last Conv. layers to make it less sensitive to overfitting. 
 
 The model includes RELU layers to introduce nonlinearity, and the data is normalized in the model using a Keras lambda layer (code line 12). The input data is cropped to include only the part of the image which contains relevant information to decide which direction to steer to.
 
-Cropped image
 
-![Cropped sample image][step1]
+![Original image][original]
+![Cropped image][cropped]
 
 I included as well a preprocessing step which is not directly done in the model itself but in data reading as I couldn't implement it yet in Keras or Tensorflow: converting the image from RGB to HSV and then keeping only the Hue channel. The idea is the following: the Hue channel contains the chroma, better seperated from the lumina information, which should make this colorspace more robust to lighting variations contrary to RGB. The Hue channel shall contain enough information to drive while reducing the amount of inputs so that the DNN can focus on stricly vital information to decide (less noise).
 
-HSV image
-
-![HSV sample image][step2]
-
-Hue channel only
-
-![Hue channel only][step3]
+![H channel][H_chan]
+![S channel][S_chan]
+![V channel][V_chan]
 
 #### 2. Attempts to reduce overfitting in the model
 
@@ -142,3 +140,4 @@ After adjusting the dataset distribution, this gave me a final number of Z sampl
 I finally randomly shuffled the data set and put 20% of the data into a validation set. 
 
 I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 5 as evidenced by the loss plot below (early termination to avoid overfitting). I used an adam optimizer so that manually training the learning rate wasn't necessary.
+

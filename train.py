@@ -30,8 +30,10 @@ class LossHistory(Callback):
 
 # Load Data:
 provider = DataProvider()
-provider.load_file('./data/Center_Forward/')
-provider.load_file('./data/Center_Backward/')
+provider.load_file('./data/Center_Forward/') # First track
+provider.load_file('./data/Center_Backward/') # First track
+provider.load_file('./data/2ndTrack/')
+provider.load_file('./data/2ndTrack_LastTurns/')
 
 # Project data has a relative path for images
 ref_data_folder = './data/RefData/'
@@ -45,7 +47,7 @@ plt.draw()
 plt.pause(0.05)
 
 # Exclude over represented data
-bin_edges = provider.redistribute(cap_threshold=500)
+bin_edges = provider.redistribute(cap_threshold=1000)
 adjusted_angles = provider.get_angles()
 plt.hist(adjusted_angles, bins=bin_edges)
 plt.draw()
@@ -55,8 +57,8 @@ plt.pause(0.05)
 # Data augmentation during generator: flip version of each frames
 FRAMES_PER_SAMPLE = 2
 [train_samples,validation_samples] = provider.split_samples()
-train_generator = DataProvider.generator(ref_data_folder,train_samples, batch_size=128)
-validation_generator = DataProvider.generator(ref_data_folder,validation_samples, batch_size=128)
+train_generator = DataProvider.generator(ref_data_folder,train_samples, batch_size=256)
+validation_generator = DataProvider.generator(ref_data_folder,validation_samples, batch_size=256)
 print('Training samples: ' + str(FRAMES_PER_SAMPLE*len(train_samples)))
 
 # Build
@@ -70,7 +72,7 @@ if not model:
 history = LossHistory()
 model.fit_generator(train_generator, samples_per_epoch= FRAMES_PER_SAMPLE*len(train_samples),
                     validation_data=validation_generator,
-                    nb_val_samples=FRAMES_PER_SAMPLE*len(validation_samples), nb_epoch=5,callbacks=[history])
+                    nb_val_samples=FRAMES_PER_SAMPLE*len(validation_samples), nb_epoch=10,callbacks=[history])
 
 model.save('model.h5')
 

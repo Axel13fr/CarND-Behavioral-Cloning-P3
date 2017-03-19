@@ -118,9 +118,10 @@ class DataProvider():
         return angles
 
     @staticmethod
-    def preprocessing(img):
-        # RGB TO HSV then to only H
-        return cv2.cvtColor(img, cv2.COLOR_BGR2HSV)[:,:,0].reshape(160,320,1)
+    def preprocessing(img,convertion=cv2.COLOR_RGB2HSV):# First track
+        return cv2.cvtColor(img,convertion)
+        # RGB TO HSV then to only S
+        #return cv2.cvtColor(img, cv2.COLOR_BGR2HSV)[:,:,1].reshape(160,320,1)
 
     @staticmethod
     def generator(folder,samples,batch_size=32):

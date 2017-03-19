@@ -7,13 +7,13 @@ def main():
     parser.add_argument(
         'image_folder',
         type=str,
-        default='',
+        default='img_folder',
         help='Path to image folder. The video will be created from these images.'
     )
     parser.add_argument(
         '--fps',
         type=int,
-        default=60,
+        default=30,
         help='FPS (Frames per second) setting for the video.')
     args = parser.parse_args()
 
