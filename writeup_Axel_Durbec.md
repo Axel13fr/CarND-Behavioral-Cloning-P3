@@ -108,8 +108,6 @@ The real work came from track2: my vehicle would drive off the road at sharp tur
 
 After that, I was able to drive properly on both tracks only adding sharp turns recording to have more samples of high steering angles.
 
-![Loss curves][loss]
-
 #### 2. Final Model Architecture
 
 The final model architecture (model.py lines 73-93) consisted of a simplfied version of the Nvidia model as stated above. The major difficulty in this project to me was to correctly choose and preprocess the data and have a model simple enough to avoid having hours of data recording as an MSE with a low distance between training set and test set didn't mean the car would drive ok on both tracks.
@@ -127,7 +125,9 @@ After the collection process, I had 68595 number of data points. As explained ab
 
 I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 10 as evidenced by the loss plot below: the simplified along with dropout needed more epochs to converge to some good performances. I used an adam optimizer so that manually training the learning rate wasn't necessary.
 
+![Loss curves][loss]
 
+One can see that after a couple of epochs, the model is still able to overfit the data which is a sign that it could still be simplified and perform equally good provided enough epochs or less dropout.
 
 #### 4. List of things to do with more time
 - Reduce the model size and complexity: less parameters might be needed to tackle both these tracks even though I used fantastic details mode in the simulator to add up more realism
