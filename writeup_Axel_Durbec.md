@@ -13,14 +13,6 @@ The goals / steps of this project are the following:
 
 
 [//]: # (Image References)
-
-[image1]: ./examples/placeholder.png "Model Visualization"
-[image2]: ./examples/placeholder.png "Grayscaling"
-[image3]: ./examples/placeholder_small.png "Recovery Image"
-[image4]: ./examples/placeholder_small.png "Recovery Image"
-[image5]: ./examples/placeholder_small.png "Recovery Image"
-[image6]: ./examples/placeholder_small.png "Normal Image"
-[image7]: ./examples/placeholder_small.png "Flipped Image"
 [histo]: ./images/histo.png "Redistrubtion of the training set"
 [original]: ./images/original.png "Step1"
 [cropped]: ./images/cropped.png "Step2"
@@ -68,7 +60,7 @@ The model includes RELU layers to introduce nonlinearity, and the data is normal
 ![Original image][original]
 ![Cropped image][cropped]
 
-I included as well a preprocessing step which is not directly done in the model itself but in data reading as I couldn't implement it yet in Keras or Tensorflow: converting the image from RGB to HSV and then keeping only the Hue channel. The idea is the following: the Hue channel contains the chroma, better seperated from the lumina information, which should make this colorspace more robust to lighting variations contrary to RGB. The Hue channel shall contain enough information to drive while reducing the amount of inputs so that the DNN can focus on stricly vital information to decide (less noise).
+I included as well a preprocessing step which is not directly done in the model itself but in data reading as I couldn't implement it yet in Keras or Tensorflow: converting the image from RGB to HSV and then keeping only the Hue channel. The idea is the following: the Hue channel contains the chroma, the S channel contains the saturation and the V channel contains the value. From the example below, it's pretty clear that the V channel is very close to what we see individually in a R G or B channel but the H and S have a very different view of the road and better seperates the lumina information from the color information, which should make this colorspace more robust to lighting variations contrary to RGB.
 
 ![H channel][H_chan]
 ![S channel][S_chan]
@@ -101,34 +93,29 @@ For details about how I created the training data, see the next section.
 
 The overall strategy for deriving a model architecture was to gradually complexify the model to make sure it could overfit the data. I used a CNN base as this architecture demonstrated good performance on previous image classification tasks in the convolutionnal layer and the Fully connected layers shall be enough to use high level features such as road delimiters to steer the car properly.
 
-Given the first data sets I had recorded myself, my modified LeNet architecture from the previous project could not achieve this so I went up to the Nvidia model which was enough, even probably too much for the task of this project as it quickly shows overfit.
+Given the first data sets I had recorded myself, my modified LeNet architecture from the previous project could not achieve this so I went up to the Nvidia model which was enough for track1 but cause me quite some trouble on track2: it was too powerful to tackle this problem without having hours of driving: I had to simplify it else it would consitently overfit in my case.
 
-From that basis, after applying the proposed preprocessing methods from the introduction video, I looked at options to preprocess the image to give the network only what it absolutely needed to decide where to drive. One of the key improvement I noticed was when working with only the H component of the image after converting from RGB to HSV (see section 2. for the idea behind). This although speeded up training as my input was now 1dimension instead of 3 in depth.
+From that basis, after applying the proposed preprocessing methods from the introduction video, I looked at options to preprocess the image to give the network only what it absolutely needed to decide where to drive. One of the key improvement I noticed was when converting from RGB to HSV (see section 2. for the idea behind). I even think that keeping only the H and S channel would be enough as the V channel was too close to the RGB image, something to be tried.
 
 To combat the overfitting, I focused on recording more accurate data and I modified the distribution of angle samples to make it much more flat so that the model would train on a well distributed set of examples.
-I simply used early termination of the training (only 5epochs) to prevent overfitting but due to the lack of time, I couldn't do the following which showed very good improvements in the previous project:
-- use a high keep prob in CN layers (0.95) as due to weight sharing, they are not too likely to overfit
-- use a high keep prob in FC layers (0.5) as they are much more likely to cause overfit based on the still generic features of the CN layers output
-- if still not enough, adding some L2 normalization factor
+I added as well dropout on the FC layers (0.5) as they are much more likely to cause overfit based on the still generic features of the CN layers output.
 
 At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road on track1. It can even drive correcly at high speeds than 9, for example 20 will do but it will start looking like a drunk driver. 15 was still producing smooth results.
 
+The real work came from track2: my vehicle would drive off the road at sharp turns towards the end of the track. I then recorded more data just focused on these sharp turns but still had problems later on the track and recording more data on these would then create more problems ! I manage to solve the neverending recording by coming reducing the complexity of the Nvidia model and removing the 2 last Conv. layers. 
+
+After that, I was able to drive properly on both tracks only adding sharp turns recording to have more samples of high steering angles.
+
 #### 2. Final Model Architecture
 
-The final model architecture (model.py lines 18-24) consisted directly of the Nvidia model. The major difficulty in this project to me was to correctly choose and preprocess the data rather than choosing the correct network architecture as a MSE with a low distance between training set and test set didn't mean the car would drive ok on both tracks.
 
-Here is a visualization of the architecture (note: visualizing the architecture is optional according to the project rubric)
-
-![alt text][image1]
+The final model architecture (model.py lines 73-93) consisted of a simplfied version of the Nvidia model as stated above. The major difficulty in this project to me was to correctly choose and preprocess the data and have a model simple enough to avoid having hours of data recording as an MSE with a low distance between training set and test set didn't mean the car would drive ok on both tracks.
 
 #### 3. Creation of the Training Set & Training Process
 
 See Appropriate training data section for the kind of data I recorded to train my model on both tracks.
 
-To augment the data sat, I also flipped images and angles thinking that this would prevent overfit by showing more cases in training just as if it was a new track. For example, here is an image that has then been flipped:
-
-![alt text][image6]
-![alt text][image7]
+To augment the data sat, I also flipped images and angles thinking that this would prevent overfit by showing more cases in training just as if it was a new track.
 
 I also recorded both tracks in "reverse" to give again more variety to my model and flipped this images too.
 The side camera images were used and flipped as well.
