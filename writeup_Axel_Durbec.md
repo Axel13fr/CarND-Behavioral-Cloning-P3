@@ -120,11 +120,7 @@ To augment the data sat, I also flipped images and angles thinking that this wou
 I also recorded both tracks in "reverse" to give again more variety to my model and flipped this images too.
 The side camera images were used and flipped as well.
 
-After the collection process, I had X number of data points. As explained above, this data set was adjusted to be better distributed by looking at the overpopulated bins of a histogram done over the whole data set.
+After the collection process, I had 68595 number of data points. As explained above, this data set was adjusted to be better distributed by looking at the overpopulated bins of a histogram done over the whole data set. After redistrubtion, that gave me 44412 and after a split of 20% for validation and augmentation I ended up with a final number of 71058 samples.
 
-After adjusting the dataset distribution, this gave me a final number of Z samples.
-
-I finally randomly shuffled the data set and put 20% of the data into a validation set. 
-
-I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 5 as evidenced by the loss plot below (early termination to avoid overfitting). I used an adam optimizer so that manually training the learning rate wasn't necessary.
+I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 10 as evidenced by the loss plot below: the simplified along with dropout needed more epochs to converge to some good performances. I used an adam optimizer so that manually training the learning rate wasn't necessary.
 
