@@ -112,19 +112,23 @@ After that, I was able to drive properly on both tracks only adding sharp turns 
 
 The final model architecture (model.py lines 73-93) consisted of a simplfied version of the Nvidia model as stated above. The major difficulty in this project to me was to correctly choose and preprocess the data and have a model simple enough to avoid having hours of data recording as an MSE with a low distance between training set and test set didn't mean the car would drive ok on both tracks.
 
+|Layer (type)           |          Output Shape     |     Param #   |  Connected to |                     
+|:---------------------:|:--------------------------:|:--------------:|:-----:| 
+| lambda_1 (Lambda)        |        (None, 160, 320, 3)|   0        |   lambda_input_1[0][0]       |      
+|cropping2d_1 (Cropping2D)    |    (None, 90, 320, 3)  |  0 |      |    lambda_1[0][0]           |      
+|convolution2d_1 (Convolution2D) | (None, 43, 158, 24) |  1824      |  cropping2d_1[0][0]          |     
+|convolution2d_2 (Convolution2D) | (None, 20, 77, 36)  |  21636     |  convolution2d_1[0][0]       |     
+|convolution2d_3 (Convolution2D) | (None, 8, 37, 48)   |  43248     |  convolution2d_2[0][0]       |    
+|flatten_1 (Flatten)             | (None, 14208)       |  0        |   convolution2d_3[0][0]       |     
+|dense_1 (Dense)                |  (None, 100)         |  1420900   |  flatten_1[0][0]             |     
+|dropout_1 (Dropout)            |  (None, 100)         |  0         |  dense_1[0][0]               |     
+|dense_2 (Dense)                |  (None, 50)         |   5050     |   dropout_1[0][0]              |  
+|dropout_2 (Dropout)            |  (None, 50)          |  0       |    dense_2[0][0]                |    
+|dense_3 (Dense)                 | (None, 10)         |   510     |    dropout_2[0][0]               |   
+|dense_4 (Dense)                |  (None, 1)          |   11      |    dense_3[0][0]                 |   
 
-| Layer         		|     Description	        					| 
-|:---------------------:|:---------------------------------------------:| 
-| Input         		      | 32x32x1 GrayScale image   							| 
-| Convolution 5x5     	 | 2x2 stride, valid padding, outputs 28x28x24 	|
-| Convolution 5x5     	 | 2x2 stride, valid padding, outputs 28x28x36 	|
-| Convolution 5x5     	 | 2x2 stride, valid padding, outputs 28x28x48 	|
-| Flatten	      	   | outputs 1x80 			
-| Fully connected		| 1x100, outputs 1x100|
-| Fully connected		| 1x50, outputs 1x100|
-| Fully connected		| 1x10, outputs 1x10|
-| Fully connected		| 1x1, outputs 1x1|
-|						|												|
+Total params: 1,493,179
+Trainable params: 1,493,179
 
 
 #### 3. Creation of the Training Set & Training Process
