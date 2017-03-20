@@ -112,6 +112,21 @@ After that, I was able to drive properly on both tracks only adding sharp turns 
 
 The final model architecture (model.py lines 73-93) consisted of a simplfied version of the Nvidia model as stated above. The major difficulty in this project to me was to correctly choose and preprocess the data and have a model simple enough to avoid having hours of data recording as an MSE with a low distance between training set and test set didn't mean the car would drive ok on both tracks.
 
+
+| Layer         		|     Description	        					| 
+|:---------------------:|:---------------------------------------------:| 
+| Input         		      | 32x32x1 GrayScale image   							| 
+| Convolution 5x5     	 | 2x2 stride, valid padding, outputs 28x28x24 	|
+| Convolution 5x5     	 | 2x2 stride, valid padding, outputs 28x28x36 	|
+| Convolution 5x5     	 | 2x2 stride, valid padding, outputs 28x28x48 	|
+| Flatten	      	   | outputs 1x80 			
+| Fully connected		| 1x100, outputs 1x100|
+| Fully connected		| 1x50, outputs 1x100|
+| Fully connected		| 1x10, outputs 1x10|
+| Fully connected		| 1x1, outputs 1x1|
+|						|												|
+
+
 #### 3. Creation of the Training Set & Training Process
 
 See Appropriate training data section for the kind of data I recorded to train my model on both tracks.
