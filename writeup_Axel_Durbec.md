@@ -114,7 +114,7 @@ The final model architecture (model.py lines 73-93) consisted of a simplfied ver
 
 |Layer (type)           |          Output Shape     |     Param #   |  Connected to |                     
 |:---------------------:|:--------------------------:|:--------------:|:-----:| 
-| lambda_1 (Lambda)        |        (None, 160, 320, 3)|   0        |   lambda_input_1[0][0]       |      
+| Normalization (Lambda)        |        (None, 160, 320, 3)|   0        |   lambda_input_1[0][0]       |      
 |cropping2d_1 (Cropping2D)    |    (None, 90, 320, 3)  |  0 |      |    lambda_1[0][0]           |      
 |convolution2d_1 (Convolution2D) | (None, 43, 158, 24) |  1824      |  cropping2d_1[0][0]          |     
 |convolution2d_2 (Convolution2D) | (None, 20, 77, 36)  |  21636     |  convolution2d_1[0][0]       |     
